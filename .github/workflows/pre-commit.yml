@@ -1,0 +1,37 @@
+name: Kursovik
+
+on:
+  push:
+    branches: [ kurs ]
+  pull_request:
+    branches: [ kurs ]
+
+jobs:
+  pre-commit:
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - uses: pre-commit/action@v2.0.2
+
+  CheckAndTest:
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: Test
+        run: go test ./app1/filter
+
+      - name: Install GolangCI-lint
+        run: go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.43.0
+
+      - name: Install Golint
+        run: go get -u golang.org/x/lint/golint
+
+      - name: Check Golint
+        run: golint $(go list ./app1/... | grep -v /vendor/)
+
+      - name: Check Golangci-lint
+        run: golangci-lint run ./app1/...
